@@ -1,5 +1,7 @@
 # esx_society
 
+THIS IS JUST THE NORMAL ESX_SOCIETY BUT MADE TO WORK WITH ZERIO-MULTIJOBS
+
 Society management for ESX. Adds employee management (hire, fire, promote / demote, change salary), society bank accounts and money washing. It's crucial that this script gets started before all resources that utilize societies do, or else many things will go wrong.
 
 ## Requirements
