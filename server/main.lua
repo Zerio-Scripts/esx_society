@@ -280,11 +280,17 @@ ESX.RegisterServerCallback('esx_society:setJob', function(source, cb, identifier
 		local xTarget = ESX.GetPlayerFromIdentifier(identifier)
 
 		if xTarget then
+			if type == "fire" then
+				exports["zerio-multijobs"]:RemoveJob(identifier, job)
+			end
+
 			xTarget.setJob(job, grade)
 
 			if type == 'hire' then
+				exports["zerio-multijobs"]:AddJob(identifier, job, grade)
 				xTarget.showNotification(_U('you_have_been_hired', job))
 			elseif type == 'promote' then
+				exports["zerio-multijobs"]:UpdateJobRank(identifier, job, grade)
 				xTarget.showNotification(_U('you_have_been_promoted'))
 			elseif type == 'fire' then
 				xTarget.showNotification(_U('you_have_been_fired', xTarget.getJob().label))
