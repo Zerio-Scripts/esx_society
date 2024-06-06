@@ -180,9 +180,9 @@ end)
 ESX.RegisterServerCallback('esx_society:getEmployees', function(source, cb, society)
 	local employees = {}
 
-	local xPlayers = ESX.GetExtendedPlayers('job', society)
+	local xPlayers = exports["zerio-multijobs"]:GetPlayersWithJob(society)
 	for i=1, #(xPlayers) do 
-		local xPlayer = xPlayers[i]
+		local xPlayer = ESX.GetPlayerFromIdentifier(xPlayers[i])
 
 		local name = xPlayer.name
 		if Config.EnableESXIdentity and name == GetPlayerName(xPlayer.source) then
@@ -194,56 +194,15 @@ ESX.RegisterServerCallback('esx_society:getEmployees', function(source, cb, soci
 			identifier = xPlayer.identifier,
 			job = {
 				name = society,
-				label = xPlayer.job.label,
-				grade = xPlayer.job.grade,
-				grade_name = xPlayer.job.grade_name,
-				grade_label = xPlayer.job.grade_label
+				label = Jobs[society].label,
+				grade = xPlayers[i].grade,
+				grade_name = Jobs[society].grades[tostring(xPlayers[i].grade)].name,
+				grade_label = Jobs[society].grades[tostring(xPlayers[i].grade)].label
 			}
 		})
 	end
-		
-	local query = "SELECT identifier, job_grade FROM `users` WHERE `job`= ? ORDER BY job_grade DESC"
 
-	if Config.EnableESXIdentity then
-		query = "SELECT identifier, job_grade, firstname, lastname FROM `users` WHERE `job`= ? ORDER BY job_grade DESC"
-	end
-
-	MySQL.query(query, {society},
-	function(result)
-		for k, row in pairs(result) do
-			local alreadyInTable
-			local identifier = row.identifier
-
-			for k, v in pairs(employees) do
-				if v.identifier == identifier then
-					alreadyInTable = true
-				end
-			end
-
-			if not alreadyInTable then
-				local name = TranslateCap('name_not_found')
-
-				if Config.EnableESXIdentity then
-					name = row.firstname .. ' ' .. row.lastname 
-				end
-				
-				table.insert(employees, {
-					name = name,
-					identifier = identifier,
-					job = {
-						name = society,
-						label = Jobs[society].label,
-						grade = row.job_grade,
-						grade_name = Jobs[society].grades[tostring(row.job_grade)].name,
-						grade_label = Jobs[society].grades[tostring(row.job_grade)].label
-					}
-				})
-			end
-		end
-
-		cb(employees)
-	end)
-
+	cb(employees)
 end)
 
 ESX.RegisterServerCallback('esx_society:getJob', function(source, cb, society)
@@ -285,18 +244,28 @@ ESX.RegisterServerCallback('esx_society:setJob', function(source, cb, identifier
 		return
 	end
 
-	xTarget.setJob(job, grade)
-
 	if actionType == 'hire' then
+		exports["zerio-multijobs"]:AddJob(identifier, job, grade)
+
 		xTarget.showNotification(TranslateCap('you_have_been_hired', job))
 		xPlayer.showNotification(TranslateCap("you_have_hired", xTarget.getName()))
 	elseif actionType == 'promote' then
+		if exports["zerio-multijobs"]:DoesPlayerHaveJob(identifier, job) then
+			exports["zerio-multijobs"]:UpdateJobRank(identifier, job, grade)
+		else
+			exports["zerio-multijobs"]:AddJob(identifier, job, grade)
+		end
+
 		xTarget.showNotification(TranslateCap('you_have_been_promoted'))
 		xPlayer.showNotification(TranslateCap("you_have_promoted", xTarget.getName(), xTarget.getJob().label))
 	elseif actionType == 'fire' then
+		exports["zerio-multijobs"]:RemoveJob(identifier, xPlayer.job.name)
+
 		xTarget.showNotification(TranslateCap('you_have_been_fired', xTarget.getJob().label))
 		xPlayer.showNotification(TranslateCap("you_have_fired", xTarget.getName()))
 	end
+
+	xTarget.setJob(job, grade)
 
 	cb()
 end)

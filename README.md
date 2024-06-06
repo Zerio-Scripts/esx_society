@@ -1,40 +1,49 @@
 # esx_society
 
+THIS IS JUST THE NORMAL ESX_SOCIETY BUT MADE TO WORK WITH ZERIO-MULTIJOBS
+
 Society management for ESX. Adds employee management (hire, fire, promote / demote, change salary), society bank accounts and money washing. It's crucial that this script gets started before all resources that utilize societies do, or else many things will go wrong.
 
 ## Requirements
+
 - [cron](https://github.com/esx-framework/esx-legacy/tree/main/%5Besx%5D/cron)
 - [esx_addonaccount](https://github.com/esx-framework/esx-legacy/tree/main/%5Besx_addons%5D/esx_addonaccount)
 
 ## Download & Installation
 
 ### Using [fvm](https://github.com/qlaffont/fvm-installer)
+
 ```
 fvm install --save --folder=esx esx-framework/esx_society
 ```
 
 ### Using Git
+
 ```
 cd resources
 git clone https://github.com/ESX-Org/esx_society [esx]/esx_society
 ```
 
 ### Manually
-- Download https://github.com/esx-framework/esx_society/archive/master.zip
+
+- [Download from here](https://github.com/esx-framework/esx_society/archive/master.zip)
 - Put it in the `[esx]` directory
 
 ## Installation
+
 - Import `esx_society.sql` in your database
 - Add this in your `server.cfg`:
 
-```
+```cfg
 start esx_society
 ```
 
 ## Explanation
+
 ESX Society works with addon accounts named 'society_xxx', for example 'society_taxi' or 'society_realestateagent'. If you job grade is 'boss' the society money will be displayed in your hud.
 
 ## Usage
+
 ```lua
 local society = 'taxi'
 local amount  = 100
@@ -45,12 +54,14 @@ TriggerServerEvent('esx_society:washMoney', society, amount)
 
 
 TriggerEvent('esx_society:openBossMenu', society, function (menu)
-	ESX.CloseContext() 
+    ESX.CloseContext() 
 end, {wash = false}) -- set custom options, e.g disable washing
 ```
 
-# Legal
+## Legal
+
 ### License
+
 esx_society - societies for ESX
 
 Copyright (C) 2015-2023 Jérémie N'gadi
